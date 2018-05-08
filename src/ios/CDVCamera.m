@@ -218,6 +218,7 @@ static NSString* toBase64(NSData* data) {
 // Delegate for camera permission UIAlertView
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
+    CDVPluginResult* result;
     // If Settings button (on iOS 8), open the settings app
     if (buttonIndex == 1) {
 #pragma clang diagnostic push
@@ -225,13 +226,14 @@ static NSString* toBase64(NSData* data) {
         if (&UIApplicationOpenSettingsURLString != NULL) {
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
         }
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"has no access, permission settings opened"];
 #pragma clang diagnostic pop
+    } else {
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"has no access to camera"];
     }
 
     // Dismiss the view
     [[self.pickerController presentingViewController] dismissViewControllerAnimated:YES completion:nil];
-
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"has no access to camera"];   // error callback expects string ATM
 
     [self.commandDelegate sendPluginResult:result callbackId:self.pickerController.callbackId];
 
